@@ -1,7 +1,7 @@
 import AppKit
 
 ///An NSPopUpButton used for selecting a font installed on the user's machine
-class FontPopUpButton: NSPopUpButton {
+public class FontPopUpButton: NSPopUpButton {
 	///A callback that can be performed when a font has been selected.
 	public typealias FontChangeCallback = ((NSFont?) -> ())
 	
@@ -12,27 +12,33 @@ class FontPopUpButton: NSPopUpButton {
 	public var fontTraitsFilter: NSFontTraitMask? = nil
 	
 	///The currently selected font
-	var selectedFont: NSFont? {
+	public var selectedFont: NSFont? {
 		didSet {
 			if let selectedFont,
 			   let family = selectedFont.familyName,
 			   let fontItem = self.item(withTitle: family) {
 				self.select(fontItem)
 			} else {
+				self.select(defaultItem)
 				//selected font doesn't exist on device
 			}
 		}
 	}
 	
+	///A Boolean value indicating whether the button displays a pull-down or pop-up menu. Always returns false.
+	override public var pullsDown: Bool {
+		get {return false}
+		set {}
+	}
+	
 	/// Returns a FontPopUpButton object initialized to the specified dimensions.
 	/// - Parameters:
 	///   - buttonFrame: The frame rectangle for the button, specified in the parent view's coordinate system.
-	///   - flag: true if you want the receiver to display a pull-down menu; otherwise, false if you want it to display a pop-up menu.
 	///   - callback: Callback to perform when the user has selected a font
 	/// - Returns: An initialized FontPopUpButton object, or nil if the object could not be initialized.
-	init(frame buttonFrame: NSRect, pullsDown flag: Bool, callback: FontChangeCallback? = nil) {
+	public init(frame buttonFrame: NSRect, callback: FontChangeCallback? = nil) {
 		self.onFontChanged = callback ?? {_ in}
-		super.init(frame: buttonFrame, pullsDown: flag)
+		super.init(frame: buttonFrame, pullsDown: false)
 		setup()
 	}
 	
@@ -42,7 +48,8 @@ class FontPopUpButton: NSPopUpButton {
 		setup()
 	}
 	
-	var onFontChanged: FontChangeCallback
+	///Callback to perform when the user has selected a font
+	public var onFontChanged: FontChangeCallback
 	
 	func setup() {
 		self.target = self
