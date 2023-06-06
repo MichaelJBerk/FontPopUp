@@ -36,7 +36,7 @@ public class FontPopUpButton: NSPopUpButton {
 	///   - buttonFrame: The frame rectangle for the button, specified in the parent view's coordinate system.
 	///   - callback: Callback to perform when the user has selected a font
 	/// - Returns: An initialized FontPopUpButton object, or nil if the object could not be initialized.
-	public init(frame buttonFrame: NSRect, callback: FontChangeCallback? = nil) {
+	public init(frame buttonFrame: NSRect = .infinite, callback: FontChangeCallback? = nil) {
 		self.onFontChanged = callback ?? {_ in}
 		super.init(frame: buttonFrame, pullsDown: false)
 		setup()
