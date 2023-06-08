@@ -1,9 +1,10 @@
 import AppKit
 
+///A callback that can be performed when a font has been selected.
+public typealias FontChangeHandler = ((NSFont?) -> ())
+
 ///An NSPopUpButton used for selecting a font installed on the user's machine
 public class FontPopUpButton: NSPopUpButton {
-	///A callback that can be performed when a font has been selected.
-	public typealias FontChangeCallback = ((NSFont?) -> ())
 	
 	private let fontManager = NSFontManager.shared
 	private let defaultItem = NSMenuItem(title: "Default", action: nil, keyEquivalent: "")
@@ -36,7 +37,7 @@ public class FontPopUpButton: NSPopUpButton {
 	///   - buttonFrame: The frame rectangle for the button, specified in the parent view's coordinate system.
 	///   - callback: Callback to perform when the user has selected a font
 	/// - Returns: An initialized FontPopUpButton object, or nil if the object could not be initialized.
-	public init(frame buttonFrame: NSRect = .infinite, callback: FontChangeCallback? = nil) {
+	public init(frame buttonFrame: NSRect = .infinite, callback: FontChangeHandler? = nil) {
 		self.onFontChanged = callback ?? {_ in}
 		super.init(frame: buttonFrame, pullsDown: false)
 		setup()
@@ -49,7 +50,7 @@ public class FontPopUpButton: NSPopUpButton {
 	}
 	
 	///Callback to perform when the user has selected a font
-	public var onFontChanged: FontChangeCallback
+	public var onFontChanged: FontChangeHandler
 	
 	func setup() {
 		self.target = self
