@@ -4,6 +4,8 @@ import AppKit
 public typealias FontChangeHandler = ((NSFont?) -> ())
 
 ///An NSPopUpButton used for selecting a font installed on the user's machine
+///
+///- Important: The popup button won't have the proper intrinsic content size when it initalized, since it must load all the menu items asyncronously. As such, it's recommended to use Auto Layout or the like to adjust the width when it is added to the view hierarchy, so that it won't be the wrong size until the user selects an item.
 public class FontPopUpButton: NSPopUpButton {
 	
 	private let fontManager = NSFontManager.shared
@@ -65,23 +67,30 @@ public class FontPopUpButton: NSPopUpButton {
 		if self.selectedFont == nil {
 			self.select(defaultItem)
 		}
-		var families = fontManager.availableFontFamilies
-		if let fontTraitsFilter {
-			families = fontManager.availableFontNames(with: fontTraitsFilter) ?? families
-		}
-		for family in fontManager.availableFontFamilies {
-			if let font = fontManager.font(withFamily: family, traits: [], weight: 5, size: NSFont.systemFontSize) {
-				let fontItem = NSMenuItem(title: family, action: nil, keyEquivalent: "")
-				let attStr = NSAttributedString(string: family, attributes: [
-					.font: font
-				])
-				fontItem.attributedTitle = attStr
-				fontItem.representedObject = font
-				fontMenu.addItem(fontItem)
-				if self.font?.familyName == family {
-					self.select(fontItem)
+		let familyName = self.font?.familyName
+		
+		DispatchQueue.global(qos: .userInitiated).async {
+			var families = self.fontManager.availableFontFamilies
+			if let fontTraitsFilter = self.fontTraitsFilter {
+				families = self.fontManager.availableFontNames(with: fontTraitsFilter) ?? families
+			}
+			for family in families {
+				if let font = self.fontManager.font(withFamily: family, traits: [], weight: 5, size: NSFont.systemFontSize) {
+					let fontItem = NSMenuItem(title: family, action: nil, keyEquivalent: "")
+					let attStr = NSAttributedString(string: family, attributes: [
+						.font: font
+					])
+					fontItem.attributedTitle = attStr
+					fontItem.representedObject = font
+					fontMenu.addItem(fontItem)
+					if familyName == family {
+						DispatchQueue.main.async {
+							self.select(fontItem)
+						}
+					}
 				}
 			}
+			
 		}
 		
 	}
