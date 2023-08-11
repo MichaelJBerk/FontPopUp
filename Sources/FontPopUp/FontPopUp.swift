@@ -14,6 +14,19 @@ public class FontPopUpButton: NSPopUpButton {
 		NSMenuItem(title: "Default", action: nil, keyEquivalent: "")
 	}
 	
+	private var fontMap: [NSFont:NSMenuItem] = [:]
+	
+	public override var menu: NSMenu? {
+		didSet {
+			fontMap = menu?.items
+				.reduce(into: [NSFont: NSMenuItem](), { result, item in
+					if let font = item.representedObject as? NSFont {
+						result[font] = item
+					}
+				}) ?? [:]
+		}
+	}
+	
 	///The currently selected font
 	public var selectedFont: NSFont? {
 		didSet {
@@ -114,6 +127,15 @@ public class FontPopUpButton: NSPopUpButton {
 			self.selectedFont = nil
 		}
 		onFontChanged(self.selectedFont)
+	}
+	
+	///Set a font as the selected font
+	public func selectFont(_ font: NSFont?) {
+		if let font, let item = fontMap[font] {
+			self.select(item)
+		} else {
+			self.selectItem(at: 0)
+		}
 	}
 	
 	
