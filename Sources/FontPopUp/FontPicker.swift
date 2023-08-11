@@ -6,9 +6,22 @@
 //
 
 import SwiftUI
-
+//TODO: Fix menu item selection
 ///A control to select a font installed on the user's machine
 public struct FontPicker: NSViewRepresentable {
+	
+	public init(font: Binding<NSFont?>, traitsFilter: NSFontTraitMask? = nil, fontMenu: NSMenu? = nil) {
+		self._font = font
+		self.traitsFilter = traitsFilter
+		self.fontMenu = fontMenu
+		if fontMenu == nil || font.wrappedValue == nil {
+			let makeMenu = FontPopUpButton.makeMenu(familyName: self.font?.familyName, traitsFilter: traitsFilter)
+			self.fontMenu = makeMenu.menu
+		}
+	}
+	
+	///The font menu to be displayed
+	@State public var fontMenu: NSMenu? = nil
 	///The currently selected font
 	@Binding public var font: NSFont?
 	
@@ -16,8 +29,8 @@ public struct FontPicker: NSViewRepresentable {
 	@State public var traitsFilter: NSFontTraitMask? = nil
 	
 	public func makeNSView(context: Context) -> FontPopUpButton {
-		let popup = FontPopUpButton(frame: .zero, callback: fontChanged(font:))
-		popup.fontTraitsFilter = traitsFilter
+		let menu = fontMenu
+		let popup = FontPopUpButton(frame: .zero, callback: fontChanged(font:), menu: menu)
 		return popup
 	}
 	
@@ -26,8 +39,12 @@ public struct FontPicker: NSViewRepresentable {
 	}
 	
 	public func updateNSView(_ nsView: FontPopUpButton, context: Context) {
-		nsView.selectedFont = font
-		nsView.fontTraitsFilter = traitsFilter
+		if self.font != nsView.selectedFont || traitsFilter != nsView.lastTraitsFilter || fontMenu != nsView.menu  {
+			nsView.lastTraitsFilter = traitsFilter
+			let makeMenu = FontPopUpButton.makeMenu(familyName: font?.familyName, traitsFilter: traitsFilter)
+			nsView.menu = makeMenu.menu
+			nsView.select(makeMenu.selectedItem)
+		}
 	}
 }
 

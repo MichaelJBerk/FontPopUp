@@ -14,6 +14,7 @@ I needed a simple way to allow users to pick a font in one of my apps, and found
 - Add the FontPopUp package to your project through Swift Package Manager
 - If you're using UIKit, use the `FontPopUpButton` class
 - If you're using SwiftUI, use the `FontPicker` class
+- NOTE! Selection currently broken in SwiftUI
 
 # Filtering the font list
 - You can restrict the fonts that appear on the list using an `NSFontTraitMask`. 
